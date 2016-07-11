@@ -1,4 +1,5 @@
-﻿Import-Module "C:\Program Files\WindowsPowerShell\Modules\cManageVMDeployment\cManageVMDeployment.psm1" -Force
+Get-Module cManageVMDeployment | Remove-Module
+Import-Module "C:\Program Files\WindowsPowerShell\Modules\cManageVMDeployment\cManageVMDeployment.psm1" -Force
 
 InModuleScope cManageVMDeployment {
 
@@ -22,33 +23,133 @@ InModuleScope cManageVMDeployment {
         throw $typeException
     }
     }
-    #$class = New-PSClassinstance -TypeName cManageVMDeployment
- 
+    
     Describe 'Testing the Class based DSC resource cManageVMDeployment' {
-
-        Context 'Testing the Test() method' {
         
-            
-            
-            $class = New-PSClassinstance -TypeName cManageVMDeployment
-            $class.VMName = "test1"
-            Function Get-VM {"what is this"}
+        Function Get-VM {}
+        Function New-VM {}
+        Function Remove-VM{}
 
-            It 'Output of Test() should be boolean' {
+        Context 'Testing the Get() method' {
+                    
+            $Class = New-PSClassinstance -TypeName cManageVMDeployment
 
-            #
-            Mock Get-VM { $error }
+            $Machine = "TestVM"
+            $Class.VMName = $Machine
+                        
+          
+            It 'Output type of Get() method should be cManageVMDeployment' {
+                
+                Mock Get-VM {Return "Some Value"}
+                ($Class.Get()).Gettype() | Should be "cManageVMDeployment"
+
+            }        
+                    
+            It 'Output of Get().VNName' {
+                
+                Mock Get-VM {Return "Some Value"}
+                ($Class.Get()).VMName | Should be $Machine
+                    
+            }
+
+            It 'Output of Get().Ensure when VM is Present"' {
+
+                Mock Get-VM {Return "Some Value"}            
+                ($Class.Get()).Ensure | Should be "Present"
+                      
+            }
+            It 'Output of Get().Ensure when VM is Absent' {
+
+                Mock Get-VM {}            
+                ($Class.Get()).Ensure | Should be "Absent"
+                      
+            }
+
+
+        }
+
+        Context 'Testing the Set() Method' {
         
-            ($class.Get()).Gettype() | Should be cManageVMDeployment
+            $Class = New-PSClassinstance -TypeName cManageVMDeployment
+            $Class.VMName = "TestVM"
+            $Class.Ensure = "Present"
 
+                        
+            It 'Output of Set() method should be $null' {
+                                
+                $Class.Set() | Should be $null
+            }
+
+        
+        }
+
+        Context 'Testing the Test() Method' {
+
+            $Class = New-PSClassinstance -TypeName cManageVMDeployment
+            $Class.VMName = "TestVM"
+            $Class.Ensure = "Present"
+        
+            It 'Output of test() when machine is in Desired state' {
+            
+                Mock Get-VM {return "Something"}
+                $Class.Test() | should be $true   
+
+            }
+
+            It 'Output of test() when machine is not in Desired state' {
+            
+                Mock Get-VM {}
+                $Class.Test() | should be $false   
+
+            }
+        
+        }
+        
+        Context 'Testing the CreateVM() method' {
+                      
+            $Class = New-PSClassinstance -TypeName cManageVMDeployment
+            
+            It 'Output of CreateVM() should be null' {
+                
+                $Class.createVM() | Should be $null
         
             }
-    
+                
         }
+
+        Context 'Testing the DeleteVM() method' {
+                      
+            $Class = New-PSClassinstance -TypeName cManageVMDeployment
+            
+            It 'Output of DeleteVM() should be null' {
+                
+                $Class.DeleteVM() | Should be $null
+        
+            }
+                
+        }
+
+        Context 'Testing the TestVM() method' {
+                      
+            $Class = New-PSClassinstance -TypeName cManageVMDeployment
+            
+            It 'Output of TestVM() when VM is Present' {
+
+                Mock Get-VM {return "something"}   
+                $Class.TestVM() | Should be $true
+        
+            }
+
+            It 'Output of TestVM() when VM is Absent' {
+
+                Mock Get-VM {}   
+                $Class.TestVM() | Should be $false
+        
+            }
+                
+        } 
 
 
     }
 
 }
-
-$class = $null
