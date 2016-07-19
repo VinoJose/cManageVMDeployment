@@ -1,4 +1,5 @@
 Get-Module cManageVMDeployment | Remove-Module
+Get-Module Hyper-V | Remove-Module
 Import-Module "C:\Program Files\WindowsPowerShell\Modules\cManageVMDeployment\cManageVMDeployment.psm1" -Force
 
 InModuleScope cManageVMDeployment {
@@ -26,11 +27,8 @@ InModuleScope cManageVMDeployment {
     
     Describe 'Testing the Class based DSC resource cManageVMDeployment' {
         
-        Function Get-VM {}
-        Function New-VM {}
-        Function Remove-VM{}
-
         Context 'Testing the Get() method' {
+
                     
             $Class = New-PSClassinstance -TypeName cManageVMDeployment
 
@@ -73,9 +71,10 @@ InModuleScope cManageVMDeployment {
             $Class = New-PSClassinstance -TypeName cManageVMDeployment
             $Class.VMName = "TestVM"
             $Class.Ensure = "Present"
-
+            
                         
             It 'Output of Set() method should be $null' {
+                mock new-vm {return "something" }
                                 
                 $Class.Set() | Should be $null
             }
@@ -108,9 +107,11 @@ InModuleScope cManageVMDeployment {
         Context 'Testing the CreateVM() method' {
                       
             $Class = New-PSClassinstance -TypeName cManageVMDeployment
-            
+            $Class.VMName = "TestVM"
+
             It 'Output of CreateVM() should be null' {
                 
+                Mock New-VM {}
                 $Class.createVM() | Should be $null
         
             }
@@ -120,9 +121,11 @@ InModuleScope cManageVMDeployment {
         Context 'Testing the DeleteVM() method' {
                       
             $Class = New-PSClassinstance -TypeName cManageVMDeployment
-            
+            $Class.VMName = "TestVM"
+
             It 'Output of DeleteVM() should be null' {
-                
+
+                Mock Remove-VM {}
                 $Class.DeleteVM() | Should be $null
         
             }
@@ -132,7 +135,8 @@ InModuleScope cManageVMDeployment {
         Context 'Testing the TestVM() method' {
                       
             $Class = New-PSClassinstance -TypeName cManageVMDeployment
-            
+            $Class.VMName = "TestVM"
+
             It 'Output of TestVM() when VM is Present' {
 
                 Mock Get-VM {return "something"}   
@@ -151,5 +155,4 @@ InModuleScope cManageVMDeployment {
 
 
     }
-
 }
